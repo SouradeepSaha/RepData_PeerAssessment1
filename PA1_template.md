@@ -62,8 +62,8 @@ median(stepsByDay)
 Calculate the average step per interval
 
 ```r
-stepsByDay <- with(activity, tapply(nSteps, interval, mean))
-plot(stepsByDay ~ as.numeric(names(stepsByDay)), type = "l", 
+stepsByInt <- with(activity, tapply(nSteps, interval, mean))
+plot(stepsByInt ~ as.numeric(names(stepsByInt)), type = "l", 
      xlab = "Interval", ylab = "Average Steps", main = "Average steps in each interval")
 ```
 
@@ -73,7 +73,7 @@ To find which 5-minute interval, on average, contains the maximum
 number of steps,
 
 ```r
-names(which.max(stepsByDay))
+names(which.max(stepsByInt))
 ```
 
 ```
@@ -98,7 +98,7 @@ over all days
 ```r
 avgActivity <- activity
 avgActivity$nSteps <- ifelse(is.na(avgActivity$steps), 
-                             stepsByDay[as.character(avgActivity$interval)],
+                             stepsByInt[as.character(avgActivity$interval)],
                              avgActivity$steps)
 ```
 
@@ -131,7 +131,45 @@ median(newStepsByDay)
 ## [1] 10395
 ```
 
-As we can see, imputting missing data drastically increased the estimates of the
+As we can see, imputing missing data drastically increased the estimates of the
 total daily number of steps.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Creating a new factor variable based on weekdays or weekends
+
+```r
+avgActivity$dayType <- ifelse(weekdays(avgActivity$date) == "Saturday" | weekdays(avgActivity$date) == "Sunday", 
+                              "weekend",
+                              "weekday")
+```
+
+Creating and printing the plot
+
+```r
+library(ggplot2)
+dayTypeAct <- aggregate(nSteps~interval+dayType, avgActivity, mean)
+ggp <- ggplot(data = dayTypeAct, aes(x = interval, y = nSteps)) + 
+  facet_wrap(~dayType) + 
+  theme_gray()+ 
+  geom_line()+  
+  ggtitle("Average steps: weekdays vs weekends")
+  labs(x = "interval", y = "steps")
+```
+
+```
+## $x
+## [1] "interval"
+## 
+## $y
+## [1] "steps"
+## 
+## attr(,"class")
+## [1] "labels"
+```
+
+```r
+print(ggp)
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-14-1.png)<!-- -->

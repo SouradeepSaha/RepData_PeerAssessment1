@@ -103,7 +103,9 @@ avgActivity$dayType <- ifelse(weekdays(avgActivity$date) == "Saturday" | weekday
 
 Creating and printing the plot
 ```{r}
-ggp <- ggplot(data = k, aes(x = interval, y = nSteps)) + 
+library(ggplot2)
+dayTypeAct <- aggregate(nSteps~interval+dayType, avgActivity, mean)
+ggp <- ggplot(data = dayTypeAct, aes(x = interval, y = nSteps)) + 
   facet_wrap(~dayType) + 
   theme_gray()+ 
   geom_line()+  
